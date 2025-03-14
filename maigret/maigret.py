@@ -40,7 +40,7 @@ from .report import (
 )
 from .sites import MaigretDatabase
 from .submit import Submitter
-from .types import QueryResultWrapper
+from  maigret.mytypes import QueryResultWrapper
 from .utils import get_dict_ascii_tree
 from .settings import Settings
 from .permutator import Permute

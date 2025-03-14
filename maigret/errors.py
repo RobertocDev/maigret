@@ -1,7 +1,7 @@
 from typing import Dict, List, Any, Tuple
 
 from .result import MaigretCheckResult
-from .types import QueryResultWrapper
+from maigret.mytypes import QueryResultWrapper
 
 
 # error got as a result of completed search query

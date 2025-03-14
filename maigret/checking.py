@@ -29,7 +29,7 @@ from .errors import CheckError
 from .executors import AsyncioQueueGeneratorExecutor
 from .result import MaigretCheckResult, MaigretCheckStatus
 from .sites import MaigretDatabase, MaigretSite
-from .types import QueryOptions, QueryResultWrapper
+from  maigret.mytypes import QueryOptions, QueryResultWrapper
 from .utils import ascii_data_display, get_random_user_agent
 
 

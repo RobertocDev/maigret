@@ -6,7 +6,7 @@ from typing import Any, Iterable, List, Callable
 import alive_progress
 from alive_progress import alive_bar
 
-from .types import QueryDraft
+from maigret.mytypes import QueryDraft
 
 
 def create_task_func():
