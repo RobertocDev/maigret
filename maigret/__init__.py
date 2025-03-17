@@ -5,8 +5,9 @@ __package__ = 'maigret'
 __author__ = 'Soxoj'
 __author_email__ = 'soxoj@protonmail.com'
 
-
-from .__version__ import __version__
+from .maigret import Maigret  # Isso está correto!
+#from .__version__ import __version__
+from maigret.__version__ import __version__
 from .checking import maigret as search
 from .maigret import main as cli
 from .sites import MaigretEngine, MaigretSite, MaigretDatabase

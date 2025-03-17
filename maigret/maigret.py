@@ -45,6 +45,29 @@ from .utils import get_dict_ascii_tree
 from .settings import Settings
 from .permutator import Permute
 
+class Maigret:
+    def __init__(self):
+        """
+        Inicializa a instância do Maigret.
+        """
+        self.settings = Settings()
+        self.db = MaigretDatabase()
+        self.logger = logging.getLogger('maigret')
+
+    async def check(self, site, identifier):
+        """
+        Verifica se o identificador existe no site especificado.
+        """
+        # Exemplo de lógica de verificação
+        result = await maigret(
+            username=identifier,
+            site_dict={site: self.db.sites[site]},
+            query_notify=QueryNotifyPrint(),
+            proxy=self.settings.proxy_url,
+            timeout=self.settings.timeout,
+            logger=self.logger,
+        )
+        return result
 
 def extract_ids_from_page(url, logger, timeout=5) -> dict:
     results = {}
