@@ -15,13 +15,13 @@ import os.path as path
 
 from socid_extractor import extract, parse
 
-from .__version__ import __version__
+from __version__ import __version__
 from .checking import (
     timeout_check,
     SUPPORTED_IDS,
     self_check,
     BAD_CHARS,
-    maigret,
+    maigret,pip freeze > requirements.txt
 )
 from . import errors
 from .notify import QueryNotifyPrint

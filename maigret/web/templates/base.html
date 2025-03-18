@@ -68,6 +68,14 @@
         .footer a:hover {
             text-decoration: underline;
         }
+
+        .result-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 
@@ -88,7 +96,16 @@
 
     <div class="main-container">
         <div class="container">
+            <!-- Conteúdo principal -->
             {% block content %}{% endblock %}
+
+            <!-- Botão e área de resultados -->
+            <div class="form-container">
+                <button class="btn btn-primary" id="fetch-dlnk-button">Buscar Dados do dlnk.one</button>
+                <div class="result-container mt-3">
+                    <pre id="result">Clique no botão para buscar os dados.</pre>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -104,6 +121,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Alternar entre temas claro e escuro
         document.getElementById('theme-toggle').addEventListener('click', function () {
             const html = document.documentElement;
             if (html.getAttribute('data-bs-theme') === 'dark') {
@@ -111,6 +129,21 @@
             } else {
                 html.setAttribute('data-bs-theme', 'dark');
             }
+        });
+
+        // Buscar dados do dlnk.one
+        document.getElementById('fetch-dlnk-button').addEventListener('click', function () {
+            const resultElement = document.getElementById('result');
+            resultElement.innerText = 'Carregando...';
+
+            fetch('/fetch-dlnk')
+                .then(response => response.json())
+                .then(data => {
+                    resultElement.innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    resultElement.innerText = 'Erro: ' + error.message;
+                });
         });
     </script>
 </body>
