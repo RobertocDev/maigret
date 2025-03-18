@@ -21,7 +21,6 @@ from .checking import (
     SUPPORTED_IDS,
     self_check,
     BAD_CHARS,
-    maigret,pip freeze > requirements.txt
 )
 from . import errors
 from .notify import QueryNotifyPrint
@@ -517,7 +516,7 @@ async def main():
     logger.setLevel(log_level)
 
     if args.web is not None:
-        from maigret.web.app import app
+        from app import app
 
         port = (
             args.web if args.web else 5000
