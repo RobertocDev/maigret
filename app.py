@@ -44,35 +44,21 @@ def search():
         # Depuração: Imprime o JSON completo no console
         print("JSON gerado pelo Maigret:", json.dumps(json_result, indent=2))
 
-        # Processa o JSON para extrair as URLs, fotos de perfil e dados completos
-        all_urls = []  # Lista para armazenar todas as URLs encontradas
-        details = {}   # Dicionário para armazenar os detalhes de cada site
+        # Processa o JSON para extrair url_user e image
+        results = []  # Lista para armazenar os resultados
 
         for site, data in json_result.items():
             if data.get("url_user"):  # Verifica se a URL do usuário existe
-                all_urls.append(data["url_user"])
-                details[site] = {
-                    "status": "✅ Encontrado",
-                    "url": data["url_user"],
-                    "photo": data.get("image"),  # Extrai a foto de perfil usando a tag "image"
-                    "dados_completos": data  # Inclui todos os dados do site
-                }
-            else:
-                details[site] = {
-                    "status": "❌ Não encontrado",
-                    "url": None,
-                    "photo": None,
-                    "dados_completos": data  # Inclui todos os dados do site
-                }
-
-        # Junta todas as URLs em um único texto
-        all_urls_text = "\n".join(all_urls) if all_urls else "Nenhum perfil encontrado."
+                results.append({
+                    "site": site,
+                    "url_user": data["url_user"],
+                    "image": data.get("status", {}).get("ids", {}).get("image")  # Extrai a imagem
+                })
 
         # Estrutura a resposta para o Typebot
         response_data = {
             "statusCode": 200,
-            "result": all_urls_text,  # Todas as URLs em um único texto
-            "details": details        # Detalhes de cada site (URL, foto e dados completos)
+            "result": results  # Lista de sites com url_user e image
         }
 
         return jsonify(response_data)  # Retorna o JSON diretamente
