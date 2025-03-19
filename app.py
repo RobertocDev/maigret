@@ -54,7 +54,7 @@ def search():
                 details[site] = {
                     "status": "✅ Encontrado",
                     "url": data["url_user"],
-                    "photo": data.get("profile_picture") or data.get("photo")  # Extrai a foto de perfil
+                    "photo": data.get("image")  # Extrai a foto de perfil usando a tag "image"
                 }
             else:
                 details[site] = {
