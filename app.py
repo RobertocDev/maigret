@@ -43,10 +43,20 @@ def search():
 
         # Processa o JSON para extrair as URLs encontradas
         all_urls = []  # Lista para armazenar todas as URLs encontradas
+        details = {}   # Dicionário para armazenar os detalhes de cada site
 
         for site, data in json_result.items():
             if data.get("url_user"):  # Verifica se a URL do usuário existe
                 all_urls.append(data["url_user"])
+                details[site] = {
+                    "status": "✅ Encontrado",
+                    "url": data["url_user"]
+                }
+            else:
+                details[site] = {
+                    "status": "❌ Não encontrado",
+                    "url": None
+                }
 
         # Junta todas as URLs em um único texto
         all_urls_text = "\n".join(all_urls) if all_urls else "Nenhum perfil encontrado."
@@ -55,7 +65,7 @@ def search():
         response_data = {
             "statusCode": 200,
             "result": all_urls_text,  # Todas as URLs em um único texto
-            "data": json_result       # Todos os dados do JSON original
+            "details": details        # Detalhes de cada site
         }
 
         return jsonify(response_data)
