@@ -44,7 +44,7 @@ def search():
         # Depuração: Imprime o JSON completo no console
         print("JSON gerado pelo Maigret:", json.dumps(json_result, indent=2))
 
-        # Processa o JSON para extrair as URLs e fotos de perfil
+        # Processa o JSON para extrair as URLs, fotos de perfil e dados completos
         all_urls = []  # Lista para armazenar todas as URLs encontradas
         details = {}   # Dicionário para armazenar os detalhes de cada site
 
@@ -54,13 +54,15 @@ def search():
                 details[site] = {
                     "status": "✅ Encontrado",
                     "url": data["url_user"],
-                    "photo": data.get("image")  # Extrai a foto de perfil usando a tag "image"
+                    "photo": data.get("image"),  # Extrai a foto de perfil usando a tag "image"
+                    "dados_completos": data  # Inclui todos os dados do site
                 }
             else:
                 details[site] = {
                     "status": "❌ Não encontrado",
                     "url": None,
-                    "photo": None
+                    "photo": None,
+                    "dados_completos": data  # Inclui todos os dados do site
                 }
 
         # Junta todas as URLs em um único texto
@@ -70,7 +72,7 @@ def search():
         response_data = {
             "statusCode": 200,
             "result": all_urls_text,  # Todas as URLs em um único texto
-            "details": details        # Detalhes de cada site (URL e foto)
+            "details": details        # Detalhes de cada site (URL, foto e dados completos)
         }
 
         return jsonify(response_data)  # Retorna o JSON diretamente
