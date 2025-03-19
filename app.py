@@ -52,7 +52,7 @@ def search():
                 results.append({
                     "site": site,
                     "url_user": data["url_user"],
-                    "image": data.get("status", {}).get("ids", {}).get("image")  # Extrai a imagem
+                    "image": data.get("status", {}).get("ids", {}).get("image")  # Extrai a imagem de status.ids.image
                 })
 
         # Estrutura a resposta para o Typebot
