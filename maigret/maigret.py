@@ -15,12 +15,13 @@ import os.path as path
 
 from socid_extractor import extract, parse
 
-from __version__ import __version__
+from .__version__ import __version__
 from .checking import (
     timeout_check,
     SUPPORTED_IDS,
     self_check,
     BAD_CHARS,
+    maigret,
 )
 from . import errors
 from .notify import QueryNotifyPrint
@@ -44,29 +45,6 @@ from .utils import get_dict_ascii_tree
 from .settings import Settings
 from .permutator import Permute
 
-class Maigret:
-    def __init__(self):
-        """
-        Inicializa a instância do Maigret.
-        """
-        self.settings = Settings()
-        self.db = MaigretDatabase()
-        self.logger = logging.getLogger('maigret')
-
-    async def check(self, site, identifier):
-        """
-        Verifica se o identificador existe no site especificado.
-        """
-        # Exemplo de lógica de verificação
-        result = await maigret(
-            username=identifier,
-            site_dict={site: self.db.sites[site]},
-            query_notify=QueryNotifyPrint(),
-            proxy=self.settings.proxy_url,
-            timeout=self.settings.timeout,
-            logger=self.logger,
-        )
-        return result
 
 def extract_ids_from_page(url, logger, timeout=5) -> dict:
     results = {}
@@ -516,7 +494,7 @@ async def main():
     logger.setLevel(log_level)
 
     if args.web is not None:
-        from app import app
+        from maigret.web.app import app
 
         port = (
             args.web if args.web else 5000
