@@ -41,7 +41,13 @@ def search():
         with open(json_file_path, "r") as file:
             json_result = json.load(file)
 
-        return jsonify(json_result)
+        # Estrutura a resposta para o Typebot
+        response_data = {
+            "statusCode": 200,
+            "data": json_result  # O JSON retornado pelo maigret
+        }
+
+        return jsonify(response_data)
     except subprocess.CalledProcessError as e:
         print("Erro ao executar maigret:", e.stderr)  # Depuração
         return jsonify({"error": f"Erro ao executar maigret: {e.stderr}"}), 500
