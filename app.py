@@ -41,10 +41,21 @@ def search():
         with open(json_file_path, "r") as file:
             json_result = json.load(file)
 
+        # Processa o JSON para extrair as URLs encontradas
+        all_urls = []  # Lista para armazenar todas as URLs encontradas
+
+        for site, data in json_result.items():
+            if data.get("url_user"):  # Verifica se a URL do usuário existe
+                all_urls.append(data["url_user"])
+
+        # Junta todas as URLs em um único texto
+        all_urls_text = "\n".join(all_urls) if all_urls else "Nenhum perfil encontrado."
+
         # Estrutura a resposta para o Typebot
         response_data = {
             "statusCode": 200,
-            "data": json_result  # O JSON retornado pelo maigret
+            "result": all_urls_text,  # Todas as URLs em um único texto
+            "data": json_result       # Todos os dados do JSON original
         }
 
         return jsonify(response_data)
