@@ -19,9 +19,9 @@ def search():
         return jsonify({"error": "O parâmetro 'username' é obrigatório."}), 400
 
     try:
-        # Executa o maigret
+        # Executa o maigret para verificar todos os sites
         result = subprocess.run(
-            ["maigret", username, "-J", "simple", "--top-sites", "20"],  # Verifica os 20 principais sites
+            ["maigret", username, "-J", "simple"],  # Verifica todos os sites
             capture_output=True,
             text=True,
             check=True
@@ -41,7 +41,10 @@ def search():
         with open(json_file_path, "r") as file:
             json_result = json.load(file)
 
-        # Processa o JSON para extrair as URLs encontradas
+        # Depuração: Imprime o JSON completo no console
+        print("JSON gerado pelo Maigret:", json.dumps(json_result, indent=2))
+
+        # Processa o JSON para extrair as URLs e fotos de perfil
         all_urls = []  # Lista para armazenar todas as URLs encontradas
         details = {}   # Dicionário para armazenar os detalhes de cada site
 
@@ -50,12 +53,14 @@ def search():
                 all_urls.append(data["url_user"])
                 details[site] = {
                     "status": "✅ Encontrado",
-                    "url": data["url_user"]
+                    "url": data["url_user"],
+                    "photo": data.get("profile_picture") or data.get("photo")  # Extrai a foto de perfil
                 }
             else:
                 details[site] = {
                     "status": "❌ Não encontrado",
-                    "url": None
+                    "url": None,
+                    "photo": None
                 }
 
         # Junta todas as URLs em um único texto
@@ -65,7 +70,7 @@ def search():
         response_data = {
             "statusCode": 200,
             "result": all_urls_text,  # Todas as URLs em um único texto
-            "details": details        # Detalhes de cada site
+            "details": details        # Detalhes de cada site (URL e foto)
         }
 
         return jsonify(response_data)  # Retorna o JSON diretamente
