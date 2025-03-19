@@ -21,7 +21,7 @@ def search():
     try:
         # Executa o maigret
         result = subprocess.run(
-            ["maigret", username, "-J", "simple", "--top-sites", "300"],  # Verifica os 300 principais sites
+            ["maigret", username, "-J", "simple", "--top-sites", "20"],  # Verifica os 20 principais sites
             capture_output=True,
             text=True,
             check=True
@@ -65,4 +65,19 @@ def search():
         response_data = {
             "statusCode": 200,
             "result": all_urls_text,  # Todas as URLs em um único texto
-            "details":
+            "details": details        # Detalhes de cada site
+        }
+
+        return jsonify(response_data)  # Retorna o JSON diretamente
+    except subprocess.CalledProcessError as e:
+        print("Erro ao executar maigret:", e.stderr)  # Depuração
+        return jsonify({"error": f"Erro ao executar maigret: {e.stderr}"}), 500
+    except json.JSONDecodeError as e:
+        print("Erro ao processar o JSON:", str(e))  # Depuração
+        return jsonify({"error": f"Erro ao processar o resultado do maigret: {str(e)}"}), 500
+    except Exception as e:
+        print("Erro inesperado:", str(e))  # Depuração
+        return jsonify({"error": f"Erro inesperado: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
