@@ -33,14 +33,19 @@ def create_gif(image_urls, output_path, duration=500):
     """Cria um GIF a partir de uma lista de URLs de imagens."""
     images = []
     for url in image_urls:
+        print(f"Baixando imagem: {url}")  # Depuração
         img = download_image(url)
         if img:
+            print(f"Imagem baixada com sucesso: {url}")  # Depuração
             images.append(img)
+        else:
+            print(f"Falha ao baixar a imagem: {url}")  # Depuração
     
     if images:
         try:
             # Salva as imagens como GIF
             images[0].save(output_path, save_all=True, append_images=images[1:], loop=0, duration=duration)
+            print(f"GIF criado com sucesso: {output_path}")  # Depuração
             return True
         except Exception as e:
             print(f"Erro ao criar o GIF: {e}")
