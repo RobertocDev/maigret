@@ -5,6 +5,9 @@ import os
 import sys
 from io import BytesIO
 
+# Aumenta o limite de recursão
+sys.setrecursionlimit(1500)
+
 # Verifica se as dependências estão instaladas
 try:
     import requests
