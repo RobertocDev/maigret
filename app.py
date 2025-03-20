@@ -5,10 +5,8 @@ import os
 import sys
 from io import BytesIO
 
-# Aumenta o limite de recursão
 sys.setrecursionlimit(1500)
 
-# Verifica se as dependências estão instaladas
 try:
     import requests
     from PIL import Image
@@ -18,45 +16,47 @@ except ImportError as e:
     sys.exit(1)
 
 app = Flask(__name__)
-
-# Cria o diretório 'reports' se ele não existir
 os.makedirs("reports", exist_ok=True)
 
 def download_image(url):
-    """Baixa uma imagem a partir de uma URL."""
     try:
-        response = requests.get(url, timeout=10)  # Adiciona um timeout para evitar loops
+        response = requests.get(url, timeout=10)
         if response.status_code == 200:
             return Image.open(BytesIO(response.content))
     except Exception as e:
         print(f"Erro ao baixar a imagem {url}: {e}")
     return None
 
-def create_gif(image_urls, output_path, duration=500):
-    """Cria um GIF a partir de uma lista de URLs de imagens."""
+def resize_and_center_image(img, target_size=(150, 150)):
+    img.thumbnail(target_size, Image.LANCZOS)
+    new_img = Image.new("RGB", target_size, (255, 255, 255))
+    paste_x = (target_size[0] - img.size[0]) // 2
+    paste_y = (target_size[1] - img.size[1]) // 2
+    new_img.paste(img, (paste_x, paste_y))
+    return new_img
+
+def create_gif(image_urls, output_path, duration=500, target_size=(150, 150)):
     images = []
     for url in image_urls:
-        print(f"Baixando imagem: {url}")  # Depuração
         img = download_image(url)
         if img:
-            print(f"Imagem baixada com sucesso: {url}")  # Depuração
-            images.append(img)
-        else:
-            print(f"Falha ao baixar a imagem: {url}")  # Depuração
+            img_resized = resize_and_center_image(img, target_size)
+            images.append(img_resized)
     
     if images:
         try:
-            # Salva as imagens como GIF
-            images[0].save(output_path, save_all=True, append_images=images[1:], loop=0, duration=duration)
-            print(f"GIF criado com sucesso: {output_path}")  # Depuração
+            images[0].save(
+                output_path,
+                save_all=True,
+                append_images=images[1:],
+                loop=0,
+                duration=duration,
+                optimize=True,
+            )
             return True
         except Exception as e:
             print(f"Erro ao criar o GIF: {e}")
     return False
-
-@app.route('/')
-def home():
-    return "Bem-vindo ao Maigret Flask Backend! Use /search?username=SEU_USERNAME para pesquisar."
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -65,76 +65,48 @@ def search():
         return jsonify({"error": "O parâmetro 'username' é obrigatório."}), 400
 
     try:
-        # Executa o maigret para verificar todos os sites
-        result = subprocess.run(
-            ["maigret", username, "-J", "simple"],  # Verifica todos os sites
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        print("Resultado do maigret (stdout):", result.stdout)  # Depuração
-        print("Erros do maigret (stderr):", result.stderr)      # Depuração
-
-        # Caminho do arquivo JSON gerado pelo maigret
+        result = subprocess.run([
+            "maigret", username, "-J", "simple"], capture_output=True, text=True, check=True)
         json_file_path = f"reports/report_{username}_simple.json"
 
-        # Verifica se o arquivo JSON existe
         if not os.path.exists(json_file_path):
-            print("Arquivo JSON não encontrado:", json_file_path)  # Depuração
             return jsonify({"error": "Arquivo JSON não encontrado."}), 500
 
-        # Lê o conteúdo do arquivo JSON
         with open(json_file_path, "r") as file:
             json_result = json.load(file)
 
-        # Depuração: Imprime o JSON completo no console
-        print("JSON gerado pelo Maigret:", json.dumps(json_result, indent=2))
-
-        # Processa o JSON para extrair url_user e image
-        results = []  # Lista para armazenar os resultados
-        image_urls = []  # Lista para armazenar URLs das imagens
-
+        results = []
+        image_urls = []
         for site, data in json_result.items():
-            if data.get("url_user"):  # Verifica se a URL do usuário existe
+            if data.get("url_user"):
                 image_url = data.get("status", {}).get("ids", {}).get("image")
-                if image_url:  # Adiciona apenas se a imagem existir
+                if image_url:
                     image_urls.append(image_url)
-                    print(f"Imagem encontrada para {site}: {image_url}")  # Depuração
                 results.append({
                     "site": site,
                     "url_user": data["url_user"],
                     "image": image_url
                 })
 
-        # Depuração: Imprime a lista de URLs de imagens
-        print("URLs de imagens encontradas:", image_urls)
-
-        # Cria o GIF a partir das imagens
         gif_path = f"reports/{username}_profile.gif"
         if create_gif(image_urls, gif_path):
-            # Retorna o JSON com os resultados e o link para o GIF
-            response_data = {
+            return jsonify({
                 "statusCode": 200,
-                "result": results,  # Lista de sites com url_user e image
-                "gif_url": f"/download-gif/{username}"  # Link para baixar o GIF
-            }
-            return jsonify(response_data)
+                "result": results,
+                "gif_url": f"/download-gif/{username}"
+            })
         else:
             return jsonify({"error": "Nenhuma imagem encontrada para criar o GIF."}), 404
 
     except subprocess.CalledProcessError as e:
-        print("Erro ao executar maigret:", e.stderr)  # Depuração
         return jsonify({"error": f"Erro ao executar maigret: {e.stderr}"}), 500
     except json.JSONDecodeError as e:
-        print("Erro ao processar o JSON:", str(e))  # Depuração
         return jsonify({"error": f"Erro ao processar o resultado do maigret: {str(e)}"}), 500
     except Exception as e:
-        print("Erro inesperado:", str(e))  # Depuração
         return jsonify({"error": f"Erro inesperado: {str(e)}"}), 500
 
 @app.route('/download-gif/<username>', methods=['GET'])
 def download_gif(username):
-    """Rota para baixar o GIF gerado."""
     gif_path = f"reports/{username}_profile.gif"
     if os.path.exists(gif_path):
         return send_file(gif_path, mimetype='image/gif', as_attachment=True, download_name=f"{username}_profile.gif")
