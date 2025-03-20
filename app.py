@@ -2,10 +2,20 @@ from flask import Flask, request, jsonify, send_file
 import subprocess
 import json
 import os
-import requests
-from PIL import Image
-import imageio
+import sys
 from io import BytesIO
+
+# Aumenta o limite de recursão (solução temporária)
+sys.setrecursionlimit(1500)
+
+# Verifica se as dependências estão instaladas
+try:
+    import requests
+    from PIL import Image
+    import imageio
+except ImportError as e:
+    print(f"Erro: {e}. Instale as dependências necessárias.")
+    sys.exit(1)
 
 app = Flask(__name__)
 
@@ -14,9 +24,12 @@ os.makedirs("reports", exist_ok=True)
 
 def download_image(url):
     """Baixa uma imagem a partir de uma URL."""
-    response = requests.get(url)
-    if response.status_code == 200:
-        return Image.open(BytesIO(response.content))
+    try:
+        response = requests.get(url, timeout=10)  # Adiciona um timeout para evitar loops
+        if response.status_code == 200:
+            return Image.open(BytesIO(response.content))
+    except Exception as e:
+        print(f"Erro ao baixar a imagem {url}: {e}")
     return None
 
 def create_gif(image_urls, output_path, duration=500):
@@ -28,9 +41,12 @@ def create_gif(image_urls, output_path, duration=500):
             images.append(img)
     
     if images:
-        # Salva as imagens como GIF
-        images[0].save(output_path, save_all=True, append_images=images[1:], loop=0, duration=duration)
-        return True
+        try:
+            # Salva as imagens como GIF
+            images[0].save(output_path, save_all=True, append_images=images[1:], loop=0, duration=duration)
+            return True
+        except Exception as e:
+            print(f"Erro ao criar o GIF: {e}")
     return False
 
 @app.route('/')
