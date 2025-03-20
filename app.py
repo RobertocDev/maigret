@@ -5,9 +5,6 @@ import os
 import sys
 from io import BytesIO
 
-# Aumenta o limite de recursão (solução temporária)
-sys.setrecursionlimit(1500)
-
 # Verifica se as dependências estão instaladas
 try:
     import requests
@@ -94,11 +91,15 @@ def search():
                 image_url = data.get("status", {}).get("ids", {}).get("image")
                 if image_url:  # Adiciona apenas se a imagem existir
                     image_urls.append(image_url)
+                    print(f"Imagem encontrada para {site}: {image_url}")  # Depuração
                 results.append({
                     "site": site,
                     "url_user": data["url_user"],
                     "image": image_url
                 })
+
+        # Depuração: Imprime a lista de URLs de imagens
+        print("URLs de imagens encontradas:", image_urls)
 
         # Cria o GIF a partir das imagens
         gif_path = f"reports/{username}_profile.gif"
