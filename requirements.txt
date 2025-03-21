@@ -1,3 +1,4 @@
+cloudinary
 imageio==2.31.1
 gevent==23.9.1
 socid-extractor
